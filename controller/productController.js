@@ -1,12 +1,11 @@
 const { productModel } = require("../models/productModel");
 const { orderModel } = require("../models/OrderModel");
-const { default: slugify } = require("slugify");
 const fs = require("fs");
 
 
 const createProduct = async (req, res) => {
   try {
-    const { name, slug, description, price, category, shipping, quantity } =
+    const { name, description, price, weight, shipping, quantity } =
       req.fields;
     const { photo } = req.files;
     // console.log(req.files,req.fields)
@@ -14,7 +13,7 @@ const createProduct = async (req, res) => {
       !name ||
       !description ||
       !price ||
-      !category ||
+      !weight ||
       !quantity ||
       !photo ||
       photo.size > 1000000
@@ -23,7 +22,7 @@ const createProduct = async (req, res) => {
         message: "all fields required and pic size should be less than 1mb",
       });
     }
-    const product = new productModel({ ...req.fields, slug: slugify(name) });
+    const product = new productModel({ ...req.fields });
     if (photo) {
       product.photo.data = fs.readFileSync(photo.path);
       product.photo.contentType = photo.type;
@@ -47,7 +46,7 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const id = req.params.pid;
-    const { name, slug, description, price, category, shipping, quantity } =
+    const { name ,description, price, category, shipping, quantity } =
       req.fields;
     const { photo } = req.files;
     console.log(id, name, photo);

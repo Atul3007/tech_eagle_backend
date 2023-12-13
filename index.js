@@ -1,8 +1,7 @@
 const express = require("express");
 const { connection } = require("./config/db");
 const { router } = require("./routes/authRoute");
-// const { categoryrouter } = require("./routes/catrgoryRoute");
-// const { productRouter } = require("./routes/productRoute");
+const { productRouter } = require("./routes/productRoute");
 
 const cors = require("cors"); 
 const app = express();
@@ -17,8 +16,7 @@ app.use(
 const port = process.env.PORT; // Use uppercase PORT
 
  app.use("/api", router);
-// app.use("/api/category/",categoryrouter)
-// app.use("/api/product/",productRouter)
+ app.use("/api/product/",productRouter)
 
 app.get("/test", (req, res) => {
   try {

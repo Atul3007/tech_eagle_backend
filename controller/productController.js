@@ -5,7 +5,7 @@ const fs = require("fs");
 
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, weight, shipping, quantity } =
+    const { name, description, price, weight, quantity } =
       req.fields;
     const { photo } = req.files;
     // console.log(req.files,req.fields)
@@ -43,10 +43,39 @@ const createProduct = async (req, res) => {
   }
 };
 
+const getSingleProduct = async (req, res) => {
+  try {
+    const id = req.params.pid;
+    const product = await productModel
+      .findById(id)
+      .select("-photo");
+    if (!product) {
+      res.status(401).send({
+        success: false,
+        error: error.message,
+        message: "product not exist",
+      });
+      return;
+    } else {
+      res.status(200).send({
+        success: true,
+        message: product,
+      });
+    }
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      error: error.message,
+      message: "Error in getting single product",
+    });
+  }
+};
+
+
 const updateProduct = async (req, res) => {
   try {
     const id = req.params.pid;
-    const { name ,description, price, category, shipping, quantity } =
+    const { name ,description, price, weight, quantity } =
       req.fields;
     const { photo } = req.files;
     console.log(id, name, photo);
@@ -54,8 +83,7 @@ const updateProduct = async (req, res) => {
       !name ||
       !description ||
       !price ||
-      !category ||
-      !shipping ||
+      !weight ||
       !quantity ||
       !photo ||
       photo.size > 1000000
@@ -65,8 +93,7 @@ const updateProduct = async (req, res) => {
       });
     }
     const product = await productModel.findByIdAndUpdate(id, {
-      ...req.fields,
-      slug: slugify(name),
+      ...req.fields
     });
     if (photo) {
       product.photo.data = fs.readFileSync(photo.path);
@@ -93,7 +120,6 @@ const getProduct = async (req, res) => {
     const product = await productModel
       .find({})
       .select("-photo")
-      .populate("category")
       .limit(10)
       .sort({ createdAt: -1 });
     res.status(200).send({
@@ -211,8 +237,31 @@ const updateStatus=async(req,res)=>{
     });
   }}
 
+  const cod = async (req, res) => {
+    try {
+      const { cart, id } = req.body;
+      let total = 0;
+      cart.map((c) => (total += c.price));
+      const order = await new orderModel({
+        products: cart,
+        payment: `${total} cod`,
+        buyer: id,
+      }).save();
+      // console.log({order });
+      res.status(200).send({
+        success: true,
+      });
+    } catch (error) {
+      res.status(400).send({
+        success: false,
+        error: error.message,
+        message: "Error in cod payment",
+      });
+    }
+  };
 
 module.exports = {
+  cod,
   updateStatus,
   allOrder,
   order,
@@ -221,4 +270,5 @@ module.exports = {
   getProduct,
   getProductPhoto,
   deleteProduct,
+  getSingleProduct
 };

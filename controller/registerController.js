@@ -45,13 +45,11 @@ const registerController = async (req, res) => {
 
 //login
 const loginController = async (req, res) => {
-  const { email, phone, password } = req.body;
-  let user;
-  if ((!email && !phone) || !password) {
-    res.status(200).json({ message: "email or phone number and password required" });
+  const { email, password } = req.body;
+  if (!email || !password) {
+    res.status(200).json({ message: "email and password required" });
   } else {
-    email ?
-    user = await userModel.findOne({ email }) : user =  await userModel.findOne({ phone })
+    const user = await userModel.findOne({ email });
     const compare = await comparePass(password, user.password);
     //console.log(user)
     if (compare) {

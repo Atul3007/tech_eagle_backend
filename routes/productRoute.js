@@ -8,6 +8,8 @@ const {
   order,
   allOrder,
   updateStatus,
+  getSingleProduct,
+  cod,
 } = require("../controller/productController");
 const { requireSignin, checkRole } = require("../middlewares/atuhMiddleware");
 const productRouter = express.Router();
@@ -25,6 +27,8 @@ productRouter.put(
 
 productRouter.get("/get-product", getProduct);
 
+productRouter.get("/get-single-product/:pid", getSingleProduct);
+
 productRouter.get("/product-photo/:pid", getProductPhoto);
 
 productRouter.delete("/delete-product/:pid", deleteProduct);
@@ -32,6 +36,8 @@ productRouter.delete("/delete-product/:pid", deleteProduct);
 productRouter.get("/your-order/:id", order);
 
 productRouter.get("/all-order/", requireSignin, checkRole, allOrder);
+
+productRouter.post("/payment/cod", requireSignin, cod);
 
 productRouter.put(
   "/update-order/:orderId",

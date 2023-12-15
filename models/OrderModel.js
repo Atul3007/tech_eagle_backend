@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 
 const orderSchema = mongoose.Schema({
-  products: [{ type: mongoose.ObjectId, ref: "products" }],
-  payment: {},
-  buyer: { type: mongoose.ObjectId, ref: "users" },
+  products: [],
+  buyer: { type: mongoose.ObjectId, ref: "tech_users" },
   status:{
     type:String,
     default:"Not Process",
@@ -11,7 +10,7 @@ const orderSchema = mongoose.Schema({
   }
 },{timestamps:true});
 
-const orderModel = mongoose.model("orders", orderSchema);
+const orderModel = mongoose.model("orders_tech", orderSchema);
 
 module.exports = {
   orderModel,

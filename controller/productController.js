@@ -204,7 +204,6 @@ const allOrder = async (req, res) => {
       .find({})
       .populate("products", "-photo")
       .populate("buyer", "name")
-      .sort({ createAt: "-1" });
 
       res.status(200).send({
         success: true,
@@ -234,20 +233,35 @@ const updateStatus=async(req,res)=>{
       success: false,
       error: error.message,
       message: "Error in updating order",
-    });
+    }); 
   }}
 
   const cod = async (req, res) => {
     try {
-      const { cart, id } = req.body;
-      let total = 0;
-      cart.map((c) => (total += c.price));
-      const order = await new orderModel({
+      const { cart, id } = req.body; 
+      const order1 = await new orderModel({
         products: cart,
-        payment: `${total} cod`,
         buyer: id,
       }).save();
-      // console.log({order });
+
+      const order = await orderModel.findById(order1._id);
+
+      for (const orderProduct of order.products) {
+        const { _id, quantity } = orderProduct;
+    
+        const product = await productModel.findOne({ _id });
+    
+        if (product) {
+          product.quantity -= quantity;
+          await product.save();
+        } else {
+          console.log(`Product with ID ${_id} not found in the product model`);
+        }
+      }
+    
+      // Now you have updated the quantities in the product model based on the order
+      console.log('Product quantities updated successfully');
+
       res.status(200).send({
         success: true,
       });
@@ -260,6 +274,25 @@ const updateStatus=async(req,res)=>{
     }
   };
 
+  const productQuantity = async (req,res)=>{
+    try {
+      const {id} = req.params;
+      const {quantity} = req.body;
+      const updateProduct = await productModel.findByIdAndUpdate(id,{quantity});
+      if (updateProduct) {
+        res.status(200).send({ success: true });
+      } else {
+        res.status(404).send({ success: false, message: 'Product not found' });
+      }
+    } catch (error) {
+      res.status(400).send({
+        success: false,
+        error: error.message,
+        message: "Error in updating quantity",
+      });
+    }
+  }
+
 module.exports = {
   cod,
   updateStatus,
@@ -270,5 +303,6 @@ module.exports = {
   getProduct,
   getProductPhoto,
   deleteProduct,
-  getSingleProduct
+  getSingleProduct,
+  productQuantity
 };

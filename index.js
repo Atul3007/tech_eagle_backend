@@ -13,7 +13,7 @@ app.use(
   cors()
 );
 
-const port = process.env.PORT; // Use uppercase PORT
+const port = process.env.PORT||8080; // Use uppercase PORT
 
  app.use("/api", router);
  app.use("/api/product/",productRouter)
